@@ -78,6 +78,11 @@ mark{background:#FFE08A;color:var(--ink);padding:0 3px;border-radius:4px}
 textarea{width:100%;font:inherit;font-size:20px;border:3px solid var(--ink);border-radius:14px;padding:10px 14px;background:var(--card);color:var(--ink);resize:vertical}
 .wrow .lbl{text-transform:none;letter-spacing:0;font-size:17px;color:var(--ink)}
 .scene{display:flex;gap:16px;align-items:center;border:2px solid var(--ink);border-radius:16px;padding:14px;background:var(--paper)}.scene>span{font-size:54px;line-height:1}
+.links{display:flex;flex-direction:column;gap:8px;margin-top:18px;padding-top:14px;border-top:2px dashed var(--grid)}
+.links a{color:var(--phys);font-weight:700;text-underline-offset:3px}
+.week{border:3px solid var(--ink);border-radius:22px;background:var(--sun);padding:16px 18px;margin:16px 0 4px;display:grid;gap:12px}
+.week h2{font-size:30px}.wk-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.fig.wide{max-width:460px;margin:0 auto 10px}
 .bigpic{font-size:96px;text-align:center;line-height:1.1;margin-bottom:10px}
 .kopts .btn.letter span{font:800 72px var(--display)}
 .actbtn{text-align:left;display:flex;flex-direction:column;gap:2px;padding:14px 16px}
@@ -218,7 +223,7 @@ const SUBJ={eng:'English',math:'Maths',phys:'Physics',chem:'Chemistry',space:'Sp
 const ACTS={
  y5:{eng:[['Writing Workshop','8 writing features: fronted adverbials, noun phrases, speech, figurative language, clauses, parenthesis, show don’t tell',()=>writingHub()]],
      math:[['Number Sprint','Fractions, decimals, %, BIDMAS, negatives, area',()=>sprint()],['Algebra Lab','Solve for x, substitute, nth term, two unknowns',()=>algebra()],['Triangles & Trig','Angle sums, Pythagoras, sin, cos and tan',()=>trig()]],
-     phys:[['Friction Track','Push a cart across ice, wood, carpet and sand. Park it in the zone.',()=>track()],['Forces Quiz','Gravity, air resistance, levers, pulleys and gears',()=>forcesQuiz()],['Newton’s Laws','The three laws of motion: inertia, F = ma, action and reaction',()=>newtonQuiz()]],
+     phys:[['Friction Track','Push a cart across ice, wood, carpet and sand. Park it in the zone.',()=>track()],['Forces Quiz','Gravity, air resistance, levers, pulleys and gears',()=>forcesQuiz()],['Newton’s Laws','The three laws of motion: inertia, F = ma, action and reaction',()=>newtonQuiz()],['Newton Maths','Solve problems with F = ma, weight and resultant forces',()=>newtonMaths()],['Flight School','Read, then answer: forces of flight, lift, drag, wind tunnels, steering',()=>flightSchool()]],
      chem:[['Particle Lab','Heat and cool water. Watch the particles change state.',()=>particles()],['Change Sorter','Reversible or irreversible? Sort 12 real changes.',()=>sorter()]],
      space:[['Space Quiz','Orbits, planets, day and night, seasons',()=>spaceQuiz()]]},
  fs2:{eng:[['First Sounds','Hear a word, pick the letter it starts with',()=>firstSounds()],['Rhyme Time','Find the word that rhymes',()=>rhymeTime()]],
@@ -240,10 +245,11 @@ function home(){
 function hub(){
   const p=S.profile,a=ACTS[p];
   main.innerHTML=`<section style="margin-top:14px"><h1>${NAMES[p]} Lab. Pick an activity.</h1>
-  <p class="lead">${p==='fs2'?'Tap the speaker in any game to hear the question.':'English, maths and science. Every right answer earns a star.'}</p>
+  ${weekBanner(p)}<p class="lead">${p==='fs2'?'Tap the speaker in any game to hear the question.':'English, maths and science. Every right answer earns a star.'}</p>
   <div class="hub">${Object.keys(SUBJ).map(k=>`<div class="subj ${k}"><h2><span></span>${SUBJ[k]}</h2>
    ${a[k].map((x,i)=>`<button class="btn actbtn" data-k="${k}" data-i="${i}"><b>${x[0]}</b><small>${x[1]}</small></button>`).join('')}</div>`).join('')}</div></section>`;
-  main.querySelectorAll('.actbtn').forEach(b=>b.onclick=()=>go(a[b.dataset.k][+b.dataset.i][2]));
+  main.querySelectorAll('.subj .actbtn').forEach(b=>b.onclick=()=>go(a[b.dataset.k][+b.dataset.i][2]));
+  main.querySelectorAll('.week .actbtn').forEach(b=>b.onclick=()=>go(()=>openWeek(p,+b.dataset.w)));
 }
 function head(cls,sub,title,extra=''){return `<div class="act-head"><div><div class="eyebrow">${sub}</div><h1>${title}</h1></div>${extra}</div>`}
 function doneCard(score,total,again){return `<div class="done-card"><div class="big-star">★</div><h2>${score} out of ${total}!</h2><p class="lead">${score===total?'Perfect round. Brilliant work!':score>=total/2?'Great job. Try again to beat your score.':'Good try! Have another go.'}</p><button class="btn primary" id="again">Play again</button></div>`}
@@ -689,7 +695,7 @@ function newtonQuiz(){mcQuiz('phys','Physics',"Newton’s Laws",[
  {q:'How does a rocket go up?',o:['Hot gases push down, so the rocket is pushed up','It floats on air','The Moon pulls it up'],why:'Action: gas pushed down. Reaction: rocket pushed up.'},
  {q:'You jump off a small boat onto the shore. The boat…',o:['Moves backwards, away from you','Moves forwards with you','Stays perfectly still'],why:'You push the boat back as you push yourself forward.'},
  {q:'When you swim, you push the water backwards. The water…',o:['Pushes you forwards','Pushes you backwards','Pulls you down'],why:'Equal and opposite reaction (3rd law).'},
- {q:'Isaac Newton published his three laws of motion in…',o:['1687','1987','1066'],why:'In his book “Principia”.'}].slice())}
+ {q:'Isaac Newton published his three laws of motion in…',o:['1687','1987','1066'],why:'In his book “Principia”.'}],LINKS.newton)}
 
 /* ---------- FS2 English + shared picture quiz ---------- */
 function kidsMC(cls,sub,title,BANK,ROUNDS=6){
@@ -723,6 +729,134 @@ function rhymeTime(){kidsMC('eng','English · Phonics','Rhyme Time',[
   ['Which one rhymes with <b>mouse</b>?',[['🏠','house'],['🐱','cat'],['☀️','sun']],'Mouse and house rhyme!','🐭','Which one rhymes with mouse?'],
   ['Which one rhymes with <b>bear</b>?',[['🍐','pear'],['🍎','apple'],['🐶','dog']],'Bear and pear rhyme!','🐻','Which one rhymes with bear?']])}
 
+
+/* ---------- reading links ---------- */
+const LINKS={
+ forces:[['NASA · Four Forces on the Flyer','https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/four-forces-on-the-flyer'],['NASA · Four Forces of Flight (PDF)','https://www.nasa.gov/wp-content/uploads/2020/04/four_forces_of_flight.pdf']],
+ aero:[['NASA · Guide to Aerodynamics','https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/learn-about-aerodynamics/'],['Smithsonian · How Things Fly','https://howthingsfly.si.edu/']],
+ tunnel:[['NASA · Wind Tunnels educator guide','https://www.nasa.gov/stem-content/wind-tunnels-eg/'],['Smithsonian · How Things Fly','https://howthingsfly.si.edu/']],
+ newton:[['NASA · Newton’s Laws of Motion','https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/newtons-laws-of-motion/']],
+ space:[['NASA Space Place','https://spaceplace.nasa.gov/'],['NASA Space Place · All About the Moon','https://spaceplace.nasa.gov/all-about-the-moon/en/']]
+};
+const linksHTML=L=>L&&L.length?`<div class="links"><span class="lbl">Read more (opens in a new tab)</span>${L.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t} ↗</a>`).join('')}</div>`:'';
+
+/* ---------- Newton maths ---------- */
+const NEWT={
+ fma:()=>{const m=R(2,20),a=R(2,10);return{p:'F = m × a',t:`A ${m} kg trolley accelerates at ${a} m/s². What force is needed, in N?`,a:m*a,s:1,why:`${m} × ${a} = ${m*a} N.`}},
+ acc:()=>{const m=R(2,15),a=R(2,10);return{p:'a = F ÷ m',t:`A force of ${m*a} N pushes a ${m} kg box. What is its acceleration, in m/s²?`,a:a,s:1,why:`${m*a} ÷ ${m} = ${a} m/s².`}},
+ mass:()=>{const m=R(2,25),a=R(2,8);return{p:'m = F ÷ a',t:`A ${m*a} N force gives an object an acceleration of ${a} m/s². What is its mass, in kg?`,a:m,s:1,why:`${m*a} ÷ ${a} = ${m} kg.`}},
+ weight:()=>{const m=R(2,80);return{p:'Weight = m × g   (g = 10 N/kg on Earth)',t:`What is the weight of a ${m} kg ${m>30?'child':'suitcase'} on Earth, in N?`,a:m*10,s:1,why:`${m} × 10 = ${m*10} N.`}},
+ moon:()=>{const m=R(3,60)*2;return{p:'On the Moon, g ≈ 1.6 N/kg',t:`An astronaut’s kit has a mass of ${m} kg. What does it weigh on the Moon, in N?`,a:Math.round(m*1.6*10)/10,s:1,why:`${m} × 1.6 = ${Math.round(m*16)/10} N. Same mass, less weight.`}},
+ net:()=>{const a=R(20,90),b=R(5,a-5);return{p:'Resultant force = bigger force − smaller force (opposite directions)',t:`A box is pushed right with ${a} N. Friction pulls left with ${b} N. What is the resultant force, in N?`,a:a-b,s:1,why:`${a} − ${b} = ${a-b} N to the right.`}},
+ two:()=>{const m=R(2,10),acc=R(2,6),fr=R(5,30),push=m*acc+fr;return{p:'Find the resultant force first, then a = F ÷ m',t:`A ${m} kg sledge is pulled with ${push} N. Friction is ${fr} N. What is its acceleration, in m/s²?`,a:acc,s:1,why:`${push} − ${fr} = ${m*acc} N, then ${m*acc} ÷ ${m} = ${acc} m/s².`}},
+ speed:()=>{const a=R(2,6),t=R(2,10),u=R(0,1)*R(2,10);return{p:'Final speed = start speed + a × t',t:`A car going ${u} m/s accelerates at ${a} m/s² for ${t} s. What is its final speed, in m/s?`,a:u+a*t,s:1,why:`${u} + ${a} × ${t} = ${u+a*t} m/s.`}}
+};
+function newtonMaths(){numQuiz({cls:'phys',sub:'Physics',title:'Newton Maths',lead:'Use Newton’s second law to solve real problems. Units: force in newtons (N), mass in kilograms (kg), acceleration in m/s².',
+  topics:{mixed:['Mixed',null],fma:['F = ma',NEWT.fma],acc:['Find a',NEWT.acc],mass:['Find m',NEWT.mass],weight:['Weight',NEWT.weight],moon:['Moon weight',NEWT.moon],net:['Resultant',NEWT.net],two:['Two-step',NEWT.two],speed:['Speed',NEWT.speed]},
+  help:'<b>Formula sheet</b><br>F = m × a<br>a = F ÷ m<br>m = F ÷ a<br>Weight = m × 10 (Earth)<br>Weight = m × 1.6 (Moon)'+linksHTML(LINKS.newton)})}
+
+/* ---------- Flight school: read, then answer ---------- */
+const FORCES_SVG=`<svg viewBox="0 0 360 220" role="img" aria-label="The four forces on a plane"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#1D2A44"/></marker></defs>
+ <path d="M120,110 C140,96 230,94 260,104 L285,96 L290,112 L262,118 C230,126 140,124 120,110z" fill="#E1EEFA" stroke="#1D2A44" stroke-width="3"/><path d="M180,108 L210,70 L226,70 L208,110z M185,112 L215,150 L231,150 L210,114z" fill="#E1EEFA" stroke="#1D2A44" stroke-width="3"/>
+ <g stroke="#1D2A44" stroke-width="4" marker-end="url(#ah)"><line x1="200" y1="62" x2="200" y2="18"/><line x1="200" y1="160" x2="200" y2="204"/><line x1="292" y1="106" x2="346" y2="106"/><line x1="114" y1="110" x2="58" y2="110"/></g>
+ <g font-family="Atkinson Hyperlegible,sans-serif" font-weight="700" font-size="16" fill="#1D2A44"><text x="210" y="28">LIFT ↑</text><text x="210" y="200">WEIGHT ↓</text><text x="294" y="96">THRUST</text><text x="20" y="100">DRAG</text></g></svg>`;
+const FLIGHT=[
+ {t:'The Four Forces of Flight',blurb:'Lift, weight, thrust and drag',fig:FORCES_SVG,links:LINKS.forces,
+  read:`<p>Every aeroplane in the sky is in a tug-of-war between <b>four forces</b>.</p>
+   <p><b>Weight</b> is the pull of gravity, pulling the plane down towards Earth. <b>Lift</b> pushes the plane up. It is made by the wings as air flows over them. <b>Thrust</b> pushes the plane forwards. It comes from the engines or propellers. <b>Drag</b> is air resistance. It pushes backwards and tries to slow the plane down.</p>
+   <p>To take off, lift must be <b>bigger</b> than weight. To speed up, thrust must be bigger than drag. When a plane cruises at a steady height and speed, the forces are <b>balanced</b>: lift equals weight and thrust equals drag.</p>`,
+  fact:'A fully loaded Airbus A380 can weigh about 575 tonnes at take-off. Its wings still lift it into the air!',
+  qs:[{q:'Which force pulls a plane down towards Earth?',o:['Weight','Lift','Thrust'],why:'Weight is caused by gravity.'},
+   {q:'Which force do the engines produce?',o:['Thrust','Lift','Drag'],why:'Engines and propellers push the plane forwards.'},
+   {q:'For a plane to climb, lift must be…',o:['Bigger than weight','Smaller than weight','Equal to drag'],why:'More upward force than downward force.'},
+   {q:'Drag acts in which direction?',o:['Backwards, against the motion','Upwards','Forwards'],why:'Drag is air resistance, so it opposes motion.'},
+   {q:'A plane cruises at a steady speed and height. Its forces are…',o:['Balanced','Unbalanced','All zero'],why:'Lift = weight and thrust = drag.'}]},
+ {t:'How Wings Make Lift',blurb:'Aerofoils and angle of attack',links:LINKS.aero,
+  read:`<p>A wing has a special shape called an <b>aerofoil</b>. It is rounded at the front, curved on top and thin at the back.</p>
+   <p>The wing is tilted slightly upwards. This tilt is called the <b>angle of attack</b>. As the plane moves, the wing pushes air <b>downwards</b>. By Newton’s third law, the air pushes the wing <b>upwards</b>. That push is lift!</p>
+   <p>Air also flows faster over the curved top of the wing. Faster-moving air has <b>lower pressure</b>, so the higher pressure underneath pushes the wing up. Faster flying means more lift. But if the angle of attack is too steep, the smooth airflow breaks up and the wing suddenly loses lift. This is called a <b>stall</b>.</p>`,
+  fact:'Birds change the shape and angle of their wings all the time to control their lift.',
+  qs:[{q:'What is the special shape of a wing called?',o:['An aerofoil','A propeller','A rudder'],why:'Aerofoils are curved to make lift.'},
+   {q:'The upward tilt of a wing is called the…',o:['Angle of attack','Angle of drag','Wing span'],why:'It is the angle the wing meets the air.'},
+   {q:'The wing pushes air down, so the air pushes the wing up. Which law is this?',o:['Newton’s third law','Newton’s first law','The law of gravity'],why:'Equal and opposite reaction.'},
+   {q:'Air flowing faster over the top of the wing has…',o:['Lower pressure','Higher pressure','No pressure'],why:'Faster air means lower pressure, so the wing is pushed up.'},
+   {q:'What happens if the angle of attack is too steep?',o:['The wing stalls and loses lift','The plane goes faster','Drag disappears'],why:'The smooth airflow breaks up.'}]},
+ {t:'Drag and Streamlining',blurb:'Why shape matters',links:LINKS.aero,
+  read:`<p><b>Drag</b> is the force of air pushing against anything that moves through it. You feel it when you hold your hand out of a car window.</p>
+   <p>Three things change how much drag there is: the <b>shape</b> of the object, its <b>speed</b>, and its <b>surface</b>. A smooth, pointed shape lets air flow around it easily. We call this shape <b>streamlined</b>. Going faster makes drag much bigger.</p>
+   <p>Engineers streamline planes, cars and trains to save fuel. But sometimes drag is useful! Parachutes and a plane’s <b>air brakes</b> are designed to make lots of drag and slow things down.</p>`,
+  fact:'If you double your speed, the drag on you becomes about four times bigger.',
+  qs:[{q:'Drag is another name for…',o:['Air resistance','Gravity','Lift'],why:'It is the force of air pushing against a moving object.'},
+   {q:'Which shape has the least drag?',o:['A smooth, pointed shape','A flat sheet facing the wind','A rough box'],why:'Streamlined shapes let air flow round easily.'},
+   {q:'What happens to drag when you go faster?',o:['It increases','It decreases','It stays the same'],why:'Faster speed means much more drag.'},
+   {q:'Why do engineers streamline trains?',o:['To save energy and fuel','To make them heavier','To make more noise'],why:'Less drag means less energy is needed.'},
+   {q:'Which of these is designed to make lots of drag?',o:['A parachute','A racing car nose','A dolphin’s body'],why:'More drag slows the parachutist down safely.'}]},
+ {t:'Wind Tunnels',blurb:'Testing flight on the ground',links:LINKS.tunnel,
+  read:`<p>Testing a new plane by flying it is risky and expensive. So engineers use a <b>wind tunnel</b>. Instead of moving the model through the air, a giant fan moves the air past a model that stays still.</p>
+   <p>The model sits on a <b>balance</b> that measures the forces on it, like lift and drag. Scientists add <b>smoke</b> or tiny threads so they can see how the air flows around the shape.</p>
+   <p>The Wright brothers built their own small wind tunnel in 1901. They tested around 200 different wing shapes before building the first successful powered aeroplane in 1903. Today, wind tunnels test planes, racing cars, bikes, buildings and even sports clothing.</p>`,
+  fact:'Some NASA wind tunnels are big enough to test a full-size aeroplane.',
+  qs:[{q:'In a wind tunnel, what moves?',o:['The air','The model','The tunnel walls'],why:'A fan blows air past a model that stays still.'},
+   {q:'What do scientists use to see the airflow?',o:['Smoke or threads','Magnets','Mirrors'],why:'Smoke shows the path of the air.'},
+   {q:'What does the balance in a wind tunnel measure?',o:['The forces on the model','The temperature','The model’s colour'],why:'It measures forces such as lift and drag.'},
+   {q:'Why do engineers use wind tunnels?',o:['It is safer and cheaper than test flights','Planes cannot fly outside','To paint the models'],why:'They can test lots of designs safely on the ground.'},
+   {q:'About how many wing shapes did the Wright brothers test?',o:['About 200','About 2','About 2 million'],why:'Their 1901 tunnel tests helped them design the 1903 Flyer.'}]},
+ {t:'Steering a Plane',blurb:'Roll, pitch and yaw',links:LINKS.forces,
+  read:`<p>A plane can turn in three ways. <b>Roll</b> tips the wings left or right. <b>Pitch</b> moves the nose up or down. <b>Yaw</b> swings the nose left or right.</p>
+   <p>Pilots control these with hinged flaps called <b>control surfaces</b>. The <b>ailerons</b> on the wing tips control roll. The <b>elevator</b> on the tail controls pitch. The <b>rudder</b> on the tail fin controls yaw.</p>
+   <p>Each control surface works by changing how the air pushes on that part of the plane. For landing, pilots also lower <b>flaps</b> on the wings. They add extra lift so the plane can fly slowly and safely.</p>`,
+  fact:'Turning a plane usually uses roll and yaw together, just like a cyclist leaning into a bend.',
+  qs:[{q:'Which movement tips the wings left or right?',o:['Roll','Pitch','Yaw'],why:'Roll tilts the wings.'},
+   {q:'Which control surface moves the nose up or down?',o:['The elevator','The rudder','The ailerons'],why:'The elevator controls pitch.'},
+   {q:'The rudder controls…',o:['Yaw','Roll','Thrust'],why:'It swings the nose left or right.'},
+   {q:'Where are the ailerons?',o:['Near the wing tips','On the engine','On the nose'],why:'Ailerons sit on the outer part of each wing.'},
+   {q:'Why do pilots lower the flaps to land?',o:['To add lift at slow speeds','To go faster','To turn left'],why:'Extra lift lets the plane fly slowly and safely.'}]}
+];
+function flightSchool(){
+  main.innerHTML=`<section class="act phys">${head('phys','Physics','Flight School')}
+   <p class="lead" style="margin:0">Read each short lesson first, then answer the questions. Use the links to read more.</p>
+   <div class="fgrid">${FLIGHT.map((L,i)=>`<button class="btn actbtn" data-i="${i}"><b>${i+1}. ${L.t}</b><small>${L.blurb}</small></button>`).join('')}</div></section>`;
+  main.querySelector('.fgrid').onclick=e=>{const b=e.target.closest('button');if(b){const L=FLIGHT[+b.dataset.i];go(()=>readLesson('phys','Physics · Flight School',L))}};
+}
+function readLesson(cls,sub,L){
+  main.innerHTML=`<section class="act ${cls}">${head(cls,sub,L.t)}<div id="lb"></div></section>`;
+  const lb=$('#lb');
+  function reading(){lb.innerHTML=`<div class="panel prose">${L.fig?`<div class="fig wide">${L.fig}</div>`:''}${L.read}${L.fact?`<div class="tip"><b>Fun fact</b> ${L.fact}</div>`:''}
+    <div style="margin-top:18px"><button class="btn primary" id="go">I’ve read it. Start the questions →</button></div>${linksHTML(L.links)}</div>`;
+    $('#go').onclick=()=>{quiz();window.scrollTo(0,0)}}
+  function quiz(){let i=0,score=0;const qs=L.qs;
+    function show(){if(i>=qs.length){lb.innerHTML=`<div class="panel">${doneCard(score,qs.length)}<div style="text-align:center;margin-top:10px"><button class="btn" id="rr">Read the lesson again</button></div>${linksHTML(L.links)}</div>`;$('#again').onclick=()=>{i=0;score=0;show()};$('#rr').onclick=reading;return}
+      const q=qs[i],opts=shuffle(q.o.map((t,k)=>({t,ok:k===0})));
+      lb.innerHTML=`<div class="panel"><div class="dots">${qs.map((_,k)=>`<i class="${k<i?'ok':k===i?'now':''}"></i>`).join('')}</div><div class="q small">${q.q}</div>
+       <div class="opts">${opts.map((o,k)=>`<button class="btn" data-k="${k}">${o.t}</button>`).join('')}</div><div class="fb" style="margin-top:14px"></div>
+       <div style="margin-top:12px"><button class="btn" id="peek" style="font-size:16px;padding:8px 14px">Look back at the lesson</button></div></div>`;
+      $('#peek').onclick=reading;
+      let lock=false;lb.querySelector('.opts').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const o=opts[+b.dataset.k],fb=lb.querySelector('.fb');
+        b.classList.add(o.ok?'good':'bad');if(!o.ok)lb.querySelectorAll('.opts .btn')[opts.findIndex(x=>x.ok)].classList.add('good');
+        if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not quite. ')+q.why;setTimeout(()=>{i++;show()},o.ok?1800:3200)}}
+    show()}
+  reading();
+}
+
+/* ---------- This Week: weekly pack loaded from week.json ---------- */
+let WEEK={"week":"2026 · Week 42","y5":[{"subject":"phys","title":"Gravity and Falling","blurb":"Why do things fall, and do heavy things fall faster?",
+ "read":"<p><b>Gravity</b> is a force that pulls objects towards each other. Earth’s gravity pulls everything towards its centre, which is why things fall down.</p><p>About 400 years ago, <b>Galileo</b> showed something surprising: if there were no air, a heavy ball and a light ball dropped together would land at the <b>same time</b>. In real life a feather falls slowly because <b>air resistance</b> pushes up on it.</p><p>In 1971, astronaut David Scott tested this on the Moon, where there is no air. He dropped a hammer and a feather together, and they hit the ground at the same moment!</p>",
+ "fact":"On the Moon, gravity is about one sixth as strong as on Earth, so you could jump about six times higher.",
+ "questions":[{"q":"What does gravity do?","o":["Pulls objects towards each other","Pushes objects apart","Makes objects glow"],"why":"Earth’s gravity pulls things towards its centre."},
+  {"q":"Why does a feather fall slowly on Earth?","o":["Air resistance pushes up on it","Gravity does not pull feathers","Feathers are magnetic"],"why":"Air resistance slows light, wide objects."},
+  {"q":"On the Moon, a hammer and a feather dropped together…","o":["Land at the same time","The hammer lands first","The feather floats away"],"why":"With no air, there is no air resistance."},
+  {"q":"Which scientist showed that heavy and light objects fall at the same rate?","o":["Galileo","Darwin","Edison"],"why":"Galileo studied falling objects about 400 years ago."},
+  {"q":"Gravity on the Moon is about…","o":["One sixth of Earth’s","Twice Earth’s","The same as Earth’s"],"why":"The Moon has much less mass than Earth."}],
+ "links":[["NASA · Newton’s Laws of Motion","https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/newtons-laws-of-motion/"],["NASA Space Place","https://spaceplace.nasa.gov/"]]}],
+ "fs2":[{"subject":"space","title":"Day and Night","questions":[["When do we see the Sun?",[["☀️","In the day"],["🌙","At night"]],"We see the Sun in the day."],["What do we see at night?",[["🌙","The Moon and stars"],["🌈","A rainbow"],["☀️","The Sun"]],"At night we see the Moon and stars."],["What do you do at night?",[["🛌","Sleep"],["🏊","Swim at the beach"],["🏫","Go to school"]],"Night is time to sleep."],["Which animal wakes up at night?",[["🦉","Owl"],["🐔","Chicken"],["🐝","Bee"]],"Owls are awake at night."],["What helps us see in the dark?",[["🔦","A torch"],["🕶️","Sunglasses"],["🧢","A cap"]],"A torch makes light."]]}]};
+let weekLoaded=false;
+function loadWeek(){if(weekLoaded)return;weekLoaded=true;try{fetch('week.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.y5&&d.fs2){WEEK=d;if(stack.length&&stack[stack.length-1]===hub)go(hub,false)}}).catch(()=>{})}catch(e){}}
+function weekBanner(p){const packs=WEEK[p]||[];if(!packs.length)return'';
+  return `<div class="week"><div><span class="lbl">This week · ${WEEK.week}</span><h2>Fresh questions</h2></div><div class="wk-btns">${packs.map((k,i)=>`<button class="btn actbtn" data-w="${i}"><b>${k.title}</b><small>${k.blurb||SUBJ[k.subject]||''}</small></button>`).join('')}</div></div>`}
+function openWeek(p,i){const k=WEEK[p][i],cls=k.subject||'space';
+  if(p==='fs2')return kidsMC(cls,'This week',k.title,k.questions,k.questions.length);
+  readLesson(cls,'This week · '+(SUBJ[cls]||''),{t:k.title,read:k.read||'',fact:k.fact,links:k.links,qs:k.questions});
+}
 
 /* ---------- Space ---------- */
 function spaceKids(){
@@ -764,12 +898,12 @@ function spaceQuiz(){mcQuiz('space','Space','Space Quiz',[
  {q:'What causes Earth’s seasons?',o:['Earth’s tilted axis','Earth getting much closer to the Sun','The Moon’s phases'],why:'The tilt changes how directly sunlight hits each half of Earth.'},
  {q:'Which of these is a rocky planet?',o:['Venus','Saturn','Neptune'],why:'The four inner planets are rocky; the four outer ones are giants.'},
  {q:'What shape are the Sun, Earth and Moon?',o:['Roughly spherical','Flat discs','Cubes'],why:'Gravity pulls large objects into ball shapes.'},
- {q:'Which force keeps the planets in orbit around the Sun?',o:['Gravity','Friction','Magnetism'],why:'The Sun’s gravity pulls the planets into curved paths.'}].slice())}
+ {q:'Which force keeps the planets in orbit around the Sun?',o:['Gravity','Friction','Magnetism'],why:'The Sun’s gravity pulls the planets into curved paths.'}],LINKS.space)}
 
 /* ---------- multiple choice engine ---------- */
-function mcQuiz(cls,sub,title,bank){
+function mcQuiz(cls,sub,title,bank,links){
   let qs,i,score;
-  main.innerHTML=`<section class="act ${cls}">${head(cls,sub,title)}<div class="panel" id="qp"></div></section>`;
+  main.innerHTML=`<section class="act ${cls}">${head(cls,sub,title)}<div class="panel" id="qp"></div>${linksHTML(links)}</section>`;
   const qp=$('#qp');
   function start(){qs=shuffle(bank);i=0;score=0;show()}
   function show(){if(i>=qs.length){qp.innerHTML=doneCard(score,qs.length);$('#again').onclick=start;return}
@@ -795,7 +929,7 @@ function forcesQuiz(){mcQuiz('phys','Physics','Forces Quiz',[
  {q:'A 2 kg bag on Earth weighs about…',o:['20 N','2 N','200 N'],why:'On Earth, weight in newtons ≈ mass in kg × 10.'},
  {q:'In a circuit, adding more bulbs in series makes each bulb…',o:['Dimmer','Brighter','Change colour'],why:'The same voltage is shared between more bulbs.'},
  {q:'We see objects because light…',o:['Travels from the object into our eyes','Comes out of our eyes','Bends round corners'],why:'Light travels in straight lines into our eyes.'},
- {q:'Friction between your shoes and the floor helps you…',o:['Walk without slipping','Float','Go faster on ice'],why:'Without friction you would slide around like on ice.'}])}
+ {q:'Friction between your shoes and the floor helps you…',o:['Walk without slipping','Float','Go faster on ice'],why:'Without friction you would slide around like on ice.'}],LINKS.forces)}
 
 /* ---------- canvas helper ---------- */
 function fitCanvas(c,h){const r=window.devicePixelRatio||1,w=c.clientWidth;c.width=w*r;c.height=h*r;c.style.height=h+'px';const x=c.getContext('2d');x.setTransform(r,0,0,r,0,0);return{x,w,h}}
@@ -985,5 +1119,5 @@ function mixer(){
   reset();newT();
 }
 
-go(home);
+loadWeek();go(home);
 </script>

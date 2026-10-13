@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Little Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,7 +186,9 @@ input[type=range]{width:100%;height:44px;accent-color:var(--ink)}
 .done-card{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;padding:24px}
 .big-star{font-size:80px;line-height:1;color:var(--sun);-webkit-text-stroke:3px var(--ink)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+
+.labhero{background:#e6e4f8;border:3px solid var(--ink);border-radius:24px;padding:24px;margin:20px 0}.labhero h2{font-size:32px}.labactions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.labnote{font-size:16px;color:var(--muted)}.labresult{padding:16px;background:#edf6ed;border-radius:14px;min-height:58px}.labcanvas{width:100%;height:300px;border-radius:16px;background:#10253e}.labcontrols{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px}.labcontrols label{display:block;font-weight:bold}.labcontrols input,.labcontrols select{width:100%;font:inherit}.labtable{overflow:auto}.labpair{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.labtiles{display:flex;gap:10px;flex-wrap:wrap}.labtiles button{min-width:58px;min-height:58px}.labframe{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:350px;margin:20px auto}.labcell{height:48px;border:2px solid var(--ink);border-radius:10px;background:#fff;display:grid;place-items:center}.labcell.filled{background:#ffc83d}.labbody{max-width:380px;width:100%;height:310px}.labbody button{font-size:20px}.labquiet{background:#fff8df;padding:16px;border-radius:12px}.labcontrols select{padding:8px;border:2px solid var(--ink);border-radius:10px}a{color:#175b98} @media(max-width:600px){.bar{gap:6px}.pill{font-size:14px;padding:6px 9px}.brand{font-size:22px}.labpair{grid-template-columns:1fr}.labhero{padding:18px}} 
+</style></head><body>
 
 <div class="wrap">
   <header class="bar">
@@ -201,7 +205,7 @@ const $=s=>document.querySelector(s), main=$('#main');
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const S={profile:null,stars:{fs2:0,y5:0}};
-const NAMES={fs2:'FS2',y5:'Year 5'};
+const NAMES={fs2:'Zoe · FS2',y5:'Rayan · Year 5'};
 try{const d=JSON.parse(localStorage.getItem('littlelab')||'{}');Object.assign(S.stars,d.stars||{});}catch(e){}
 function save(){try{localStorage.setItem('littlelab',JSON.stringify({stars:S.stars}))}catch(e){}}
 function updStars(pop){$('#starN').textContent=S.profile?S.stars[S.profile]:0;if(pop){const s=$('#stars');s.classList.remove('pop');void s.offsetWidth;s.classList.add('pop')}}
@@ -212,7 +216,10 @@ const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 
 /* ---------- navigation ---------- */
 let stack=[],cleanup=null;
-function go(fn,push=true){if(cleanup){cleanup();cleanup=null}try{speechSynthesis.cancel()}catch(e){}
+const nativeLater=window.setTimeout.bind(window),pendingTimers=new Set();
+function later(fn,ms){const id=nativeLater(()=>{pendingTimers.delete(id);fn()},ms);pendingTimers.add(id);return id}
+
+function go(fn,push=true){pendingTimers.forEach(clearTimeout);pendingTimers.clear();if(cleanup){cleanup();cleanup=null}try{speechSynthesis.cancel()}catch(e){}
   if(push)stack.push(fn);main.innerHTML='';fn();window.scrollTo(0,0);
   $('#back').hidden=stack.length<=1;$('#who').hidden=!S.profile;
   if(S.profile)$('#who').textContent=NAMES[S.profile]+' ⇄';updStars()}
@@ -234,18 +241,18 @@ const ACTS={
 };
 
 function home(){
-  main.innerHTML=`<section style="margin-top:14px"><h1>Pick your level</h1>
-  <p class="lead">English, maths, physics, chemistry and space to play with. Earn a star for every right answer.</p>
+  main.innerHTML=`<section style="margin-top:14px"><h1>Whose adventure is it today?</h1>
+  <p class="lead">A little curiosity. A big discovery. Predict, play, test and explain together.</p>
   <div class="pick">
-   <button class="btn who fs2" data-p="fs2"><span class="tag">Little Explorers</span><span class="name">FS2</span><span class="list">Phonics · Adding · Counting · Shapes · Sink or float · Colours · Space</span><span class="list">★ ${S.stars.fs2} stars</span></button>
-   <button class="btn who y5" data-p="y5"><span class="tag">Lab Scientists</span><span class="name">Year 5</span><span class="list">Writing · Algebra · Trigonometry · Newton’s laws · Particles · Space</span><span class="list">★ ${S.stars.y5} stars</span></button>
-  </div></section>`;
+   <button class="btn who fs2" data-p="fs2"><span class="tag">Little Explorers</span><span class="name">Zoe</span><span>FS2 · Curious explorer</span><span class="list">Pictures · Numbers · Words · Our bodies · Space</span><span class="list">★ ${S.stars.fs2} stars</span></button>
+   <button class="btn who y5" data-p="y5"><span class="tag">Lab Scientists</span><span class="name">Rayan</span><span>Year 5 · Curious engineer</span><span class="list">Cars · Flight · Space · Maths · Reading & writing</span><span class="list">★ ${S.stars.y5} stars</span></button>
+  </div><div class="labactions"><button class="btn" onclick="go(parentGuide)">For Abu · Learning guide</button></div></section>`;
   main.querySelectorAll('.who').forEach(b=>b.onclick=()=>{S.profile=b.dataset.p;go(hub)});
 }
 function hub(){
   const p=S.profile,a=ACTS[p];
   main.innerHTML=`<section style="margin-top:14px"><h1>${NAMES[p]} Lab. Pick an activity.</h1>
-  ${weekBanner(p)}<p class="lead">${p==='fs2'?'Tap the speaker in any game to hear the question.':'English, maths and science. Every right answer earns a star.'}</p>
+  ${missionBanner(p)}${weekBanner(p)}<p class="lead">${p==='fs2'?'Tap the speaker in any game to hear the question.':'English, maths and science. Every right answer earns a star.'}</p>
   <div class="hub">${Object.keys(SUBJ).map(k=>`<div class="subj ${k}"><h2><span></span>${SUBJ[k]}</h2>
    ${a[k].map((x,i)=>`<button class="btn actbtn" data-k="${k}" data-i="${i}"><b>${x[0]}</b><small>${x[1]}</small></button>`).join('')}</div>`).join('')}</div></section>`;
   main.querySelectorAll('.subj .actbtn').forEach(b=>b.onclick=()=>go(a[b.dataset.k][+b.dataset.i][2]));
@@ -270,7 +277,7 @@ function numQuiz({cls,sub,title,lead,topics,help}){
      ${q.fig?`<div class="fig">${q.fig}</div>`:''}${q.p?`<div class="qpre">${q.p}</div>`:''}<div class="q ${q.s?'small':''}">${q.t}</div><div class="ansbox" id="ans">&nbsp;</div><div class="fb" id="fb"></div>`}
   function check(){if(lock||inp===''||inp==='-')return;lock=true;const ok=Math.abs(parseFloat(inp)-q.a)<1e-6,fb=$('#fb');
     res[i]=ok?1:0;if(ok){score++;star();fb.className='fb ok';fb.textContent='Correct!'}else{fb.className='fb no';fb.textContent=`Not quite. The answer is ${fmt(q.a)}.${q.why?' '+q.why:''}`}
-    tone(ok);setTimeout(()=>{i++;next()},ok?900:2800)}
+    tone(ok);later(()=>{i++;next()},ok?900:2800)}
   function key(k){if(lock||i>=N)return;if(k==='ok')return check();if(k==='del')inp=inp.slice(0,-1);else if(k==='neg')inp=inp.startsWith('-')?inp.slice(1):'-'+inp;else if(inp.length<7&&!(k==='.'&&inp.includes('.')))inp+=k;show()}
   $('#pad').onclick=e=>{const b=e.target.closest('button');if(b)key(b.dataset.k)};
   const tp=$('#tp');function setT(t){topic=t;tp.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.t===t));start()}
@@ -353,7 +360,7 @@ function addGame(){
      <div class="nums" id="nm" style="margin-top:14px">${shuffle([...opts]).map(v=>`<button class="btn" data-n="${v}">${v}</button>`).join('')}</div><div class="fb" id="fb" style="text-align:center;margin-top:12px"></div>`;
     $('#sp').onclick=()=>say(words);say(words);
     let lock=false;$('#nm').onclick=e=>{const btn=e.target.closest('button');if(!btn||lock)return;const ok=+btn.dataset.n===ans;tone(ok);
-      if(ok){lock=true;score++;star();btn.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes! The answer is ${ans}.`;say(`Yes! ${ans}!`);setTimeout(()=>{i++;next()},1900)}
+      if(ok){lock=true;score++;star();btn.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes! The answer is ${ans}.`;say(`Yes! ${ans}!`);later(()=>{i++;next()},1900)}
       else{btn.classList.add('bad');btn.disabled=true;say('Try again. Use the pictures to help.')}}}
   start();
 }
@@ -626,7 +633,7 @@ function worksheet(F){
        <div class="opts" style="margin-top:12px">${opts.map((o,k)=>`<button class="btn" data-k="${k}">${o.t}</button>`).join('')}</div><div class="fb" style="margin-top:14px"></div>`;
       let lock=false;p.querySelector('.opts').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const o=opts[+b.dataset.k],fb=p.querySelector('.fb');
         b.classList.add(o.ok?'good':'bad');if(!o.ok)p.querySelectorAll('.opts .btn')[opts.findIndex(x=>x.ok)].classList.add('good');
-        if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not quite. ')+it.why;setTimeout(()=>{i++;show()},o.ok?1800:3400)}}
+        if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not quite. ')+it.why;later(()=>{i++;show()},o.ok?1800:3400)}}
     show()}
   function a1(){mc(F.a1.items.map(x=>({...x,p:F.a1.p})),null,'a2')}
   function a2(){mc(F.a2.items.map(x=>({...x,p:F.a2.p})),F.a2.opts,'a3')}
@@ -638,12 +645,12 @@ function worksheet(F){
       if(A.mode==='gap'){const s=A.items[i],k=s.split('|')[0].trim().split(/\s+/).length,w=s.replace('|','').split(/\s+/);
         g.innerHTML=w.map((x,j)=>`<span class="w">${x}</span>${j<w.length-1?`<button class="gap" data-g="${j+1}" aria-label="After ${x}">^</button>`:''}`).join('');
         g.onclick=e=>{const b=e.target.closest('.gap');if(!b||lock)return;const ok=+b.dataset.g===k;tone(ok);
-          if(ok){lock=true;b.textContent=A.mark;b.classList.add('ok');if(!tries){score++;star()}fb.className='fb ok';fb.textContent='Yes! That’s the spot.';setTimeout(()=>{fb.textContent='';i++;show()},1800)}
+          if(ok){lock=true;b.textContent=A.mark;b.classList.add('ok');if(!tries){score++;star()}fb.className='fb ok';fb.textContent='Yes! That’s the spot.';later(()=>{fb.textContent='';i++;show()},1800)}
           else{tries++;b.classList.add('no');fb.className='fb no';fb.textContent='Not there. Read it aloud and try again.'}}}
       else{const [s,t]=A.items[i],w=s.split(/\s+/);
         g.innerHTML=w.map((x,j)=>`<button class="wbtn" data-j="${j}">${x}</button>`).join(' ');
         g.onclick=e=>{const b=e.target.closest('.wbtn');if(!b||lock)return;const ok=nrm(b.textContent).replace(/'.*$/,'')===t||nrm(b.textContent)===t;tone(ok);
-          if(ok){lock=true;b.classList.add('ok');if(!tries){score++;star()}fb.className='fb ok';fb.textContent=`Yes! “${t}”.`;setTimeout(()=>{fb.textContent='';i++;show()},1800)}
+          if(ok){lock=true;b.classList.add('ok');if(!tries){score++;star()}fb.className='fb ok';fb.textContent=`Yes! “${t}”.`;later(()=>{fb.textContent='';i++;show()},1800)}
           else{tries++;b.classList.add('no');fb.className='fb no';fb.textContent='Not that one. Try again.'}}}}
     show()}
 
@@ -711,7 +718,7 @@ function kidsMC(cls,sub,title,BANK,ROUNDS=6){
      <div class="kopts" id="ko">${opts.map((o,k)=>`<button class="btn ${o.t?'':'letter'}" data-k="${k}"><span>${o.e}</span>${o.t}</button>`).join('')}</div><div class="fb" id="fb" style="text-align:center;margin-top:12px"></div>`;
     const words=spoken||qq;$('#sp').onclick=()=>say(words);say(words);
     let lock=false;$('#ko').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;const o=opts[+b.dataset.k];tone(o.ok);
-      if(o.ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=why;say('Yes! '+why);setTimeout(()=>{i++;show()},2800)}
+      if(o.ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=why;say('Yes! '+why);later(()=>{i++;show()},2800)}
       else{b.classList.add('bad');b.disabled=true;say('Try again!')}}}
   start();
 }
@@ -833,7 +840,7 @@ function readLesson(cls,sub,L){
       $('#peek').onclick=reading;
       let lock=false;lb.querySelector('.opts').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const o=opts[+b.dataset.k],fb=lb.querySelector('.fb');
         b.classList.add(o.ok?'good':'bad');if(!o.ok)lb.querySelectorAll('.opts .btn')[opts.findIndex(x=>x.ok)].classList.add('good');
-        if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not quite. ')+q.why;setTimeout(()=>{i++;show()},o.ok?1800:3200)}}
+        if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not quite. ')+q.why;later(()=>{i++;show()},o.ok?1800:3200)}}
     show()}
   reading();
 }
@@ -882,7 +889,7 @@ function spaceKids(){
      <div class="kopts" id="ko">${opts.map((o,k)=>`<button class="btn" data-k="${k}"><span>${o.e}</span>${o.t}</button>`).join('')}</div><div class="fb" id="fb" style="text-align:center;margin-top:12px"></div>`;
     $('#sp').onclick=()=>say(qq);say(qq);
     let lock=false;$('#ko').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;const o=opts[+b.dataset.k];tone(o.ok);
-      if(o.ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=why;say('Yes! '+why);setTimeout(()=>{i++;show()},3000)}
+      if(o.ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=why;say('Yes! '+why);later(()=>{i++;show()},3000)}
       else{b.classList.add('bad');b.disabled=true;say(`Not ${o.t}. Try again!`)}}}
   start();
 }
@@ -913,7 +920,7 @@ function mcQuiz(cls,sub,title,bank,links){
     let lock=false;qp.querySelector('.opts').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const o=opts[+b.dataset.k],fb=$('#fb');
       b.classList.add(o.ok?'good':'bad');if(!o.ok)qp.querySelectorAll('.opts .btn')[opts.findIndex(x=>x.ok)].classList.add('good');
       if(o.ok){score++;star()}tone(o.ok);fb.className='fb '+(o.ok?'ok':'no');fb.textContent=(o.ok?'Correct! ':'Not this time. ')+q.why;
-      setTimeout(()=>{i++;show()},o.ok?1800:3200)}}
+      later(()=>{i++;show()},o.ok?1800:3200)}}
   start();
 }
 function forcesQuiz(){mcQuiz('phys','Physics','Forces Quiz',[
@@ -968,7 +975,7 @@ function track(){
       if(t<tStop)raf=requestAnimationFrame(step);else finish()};raf=requestAnimationFrame(step)}
   function finish(){running=false;$('#go').disabled=false;const fb=$('#fb'),inZ=x>=zone&&x<=zone+2;
     if(crash){fb.className='fb no';fb.textContent='Crash! Too fast for this surface. Push gentler or pick more friction.';tone(false)}
-    else if(inZ){fb.className='fb ok';fb.textContent=`Parked at ${x.toFixed(1)} m. Perfect! New zone coming…`;star();tone(true);setTimeout(newZone,2200)}
+    else if(inZ){fb.className='fb ok';fb.textContent=`Parked at ${x.toFixed(1)} m. Perfect! New zone coming…`;star();tone(true);later(newZone,2200)}
     else{fb.className='fb no';fb.textContent=x<zone?`Stopped at ${x.toFixed(1)} m. Too short: push harder or choose less friction.`:`Stopped at ${x.toFixed(1)} m. Too far: push gentler or choose more friction.`;tone(false)}}
   $('#sf').onclick=e=>{const c=e.target.closest('.chip');if(!c||running)return;surf=c.dataset.s;$('#sf').querySelectorAll('.chip').forEach(k=>k.setAttribute('aria-pressed',k===c));x=0;draw()};
   $('#sf').querySelector('[data-s=wood]').setAttribute('aria-pressed','true');
@@ -1026,7 +1033,7 @@ function sorter(){
      <div class="card-big"><div class="eyebrow">Change ${i+1} of ${deck.length}</div><div class="q">${c[0]}</div></div>
      <div class="two"><button class="btn" data-v="1" style="background:var(--chem-soft)">↺ Reversible</button><button class="btn" data-v="0" style="background:#FFE6DF">✕ Irreversible</button></div><div class="fb" id="fb"></div>`;
     let lock=false;qp.querySelector('.two').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const ok=+b.dataset.v===c[1],fb=$('#fb');
-      if(ok){score++;star()}tone(ok);b.classList.add(ok?'good':'bad');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'Yes! ':`It's ${c[1]?'reversible':'irreversible'}. `)+c[2];setTimeout(()=>{i++;show()},ok?2000:3200)}}
+      if(ok){score++;star()}tone(ok);b.classList.add(ok?'good':'bad');fb.className='fb '+(ok?'ok':'no');fb.textContent=(ok?'Yes! ':`It's ${c[1]?'reversible':'irreversible'}. `)+c[2];later(()=>{i++;show()},ok?2000:3200)}}
   start();
 }
 
@@ -1047,7 +1054,7 @@ function countGame(){
     $('#sp').onclick=()=>say(words);say(words);
     $('#th').onclick=e=>{const b=e.target.closest('.thing');if(!b||b.querySelector('.n'))return;c++;b.insertAdjacentHTML('beforeend',`<span class="n">${c}</span>`);say(String(c))};
     let lock=false;$('#nm').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;const ok=+b.dataset.n===n;tone(ok);
-      if(ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes! ${n} ${it[1]}!`;say(`Yes! ${n} ${it[1]}!`);setTimeout(()=>{i++;next()},2000)}
+      if(ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes! ${n} ${it[1]}!`;say(`Yes! ${n} ${it[1]}!`);later(()=>{i++;next()},2000)}
       else{b.classList.add('bad');b.disabled=true;say('Try again. Count them one by one.')}}}
   start();
 }
@@ -1068,7 +1075,7 @@ function shapeGame(){
      <div class="shapes" id="sh">${opts.map((s,k)=>`<button class="btn" data-s="${s}" aria-label="${s}"><svg viewBox="0 0 100 100" fill="${cols[k]}" stroke="#1D2A44" stroke-width="4" stroke-linejoin="round">${SH[s]}</svg></button>`).join('')}</div><div class="fb" id="fb" style="text-align:center;margin-top:12px"></div>`;
     $('#sp').onclick=()=>say(words);say(words);
     let lock=false;$('#sh').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;const ok=b.dataset.s===tgt;tone(ok);
-      if(ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes, that's the ${tgt}!`;say(`Yes! That's the ${tgt}!`);setTimeout(()=>{i++;next()},1800)}
+      if(ok){lock=true;score++;star();b.classList.add('good');$('#fb').className='fb ok';$('#fb').textContent=`Yes, that's the ${tgt}!`;say(`Yes! That's the ${tgt}!`);later(()=>{i++;next()},1800)}
       else{b.classList.add('bad');b.disabled=true;say(`That's a ${b.dataset.s}. Find the ${tgt}!`)}}}
   start();
 }
@@ -1089,8 +1096,8 @@ function sinkFloat(){
     $('#sp').onclick=()=>say(words);say(words);
     let lock=false;$('#ch').onclick=e=>{const b=e.target.closest('button');if(!b||lock)return;lock=true;const ok=+b.dataset.v===o[2],ob=$('#ob'),th=$('.tank').clientHeight;
       ob.style.top=(o[2]?th*.38-44:th-76)+'px';
-      setTimeout(()=>{if(o[2])ob.classList.add('bob');tone(ok);if(ok){score++;star()}const msg=`${ok?'Yes! ':'Oh! '}The ${o[1]} ${o[2]?'floats':'sinks'}!`;$('#fb').className='fb '+(ok?'ok':'no');$('#fb').textContent=msg;say(msg);
-        setTimeout(()=>{i++;show()},2600)},1350)}}
+      later(()=>{if(o[2])ob.classList.add('bob');tone(ok);if(ok){score++;star()}const msg=`${ok?'Yes! ':'Oh! '}The ${o[1]} ${o[2]?'floats':'sinks'}!`;$('#fb').className='fb '+(ok?'ok':'no');$('#fb').textContent=msg;say(msg);
+        later(()=>{i++;show()},2600)},1350)}}
   start();
 }
 
@@ -1113,11 +1120,76 @@ function mixer(){
     $('#bl').insertAdjacentHTML('beforeend',`<i style="background:${P[b.dataset.c]}"></i>`);
     if(pick.length===2){const key=[...pick].sort().join('+'),res=pick[0]===pick[1]?[pick[0],P[pick[0]]]:MIX[key],bw=$('#bw');
       bw.classList.remove('swirl');void bw.offsetWidth;bw.classList.add('swirl');bw.style.background=res[1];
-      setTimeout(()=>{const ok=res[0]===target,fb=$('#fb'),msg=`${pick[0]} and ${pick[1]} make ${res[0]}!`;fb.className='fb '+(ok?'ok':'');fb.textContent=msg+(ok?' You did it!':'');tone(ok);
-        if(ok){star();say(msg+' You did it!');setTimeout(()=>{reset();newT()},2600)}else say(msg+` Now try to make ${target}.`)},900)}};
+      later(()=>{const ok=res[0]===target,fb=$('#fb'),msg=`${pick[0]} and ${pick[1]} make ${res[0]}!`;fb.className='fb '+(ok?'ok':'');fb.textContent=msg+(ok?' You did it!':'');tone(ok);
+        if(ok){star();say(msg+' You did it!');later(()=>{reset();newT()},2600)}else say(msg+` Now try to make ${target}.`)},900)}};
   $('#rs').onclick=reset;$('#sp').onclick=()=>say(`Can you make ${target}? Pick two paints.`);
   reset();newT();
 }
 
+
+
+/* Little Lab additions: experiments, language scaffolds and observation notes. */
+ACTS.y5.phys.unshift(['Wind Tunnel Studio','Compare shapes, test speed and collect evidence.',windTunnel]);
+ACTS.y5.space.unshift(['Moon Lander','Plan a safe descent using thrust and fuel.',moonLander]);
+ACTS.y5.eng.unshift(['Mission: Read like an engineer','Read, find evidence, then explain your design.',readingMission]);
+ACTS.fs2.math.unshift(['Rocket Number Bonds','Build a crew of 5 or 10 using a visual frame.',rocketBonds]);
+ACTS.fs2.phys.unshift(['Inside Me','Explore the heart, lungs, brain and stomach.',bodyExplorer]);
+ACTS.y5.math[2][0]='Triangles & Trig · Stretch';
+ACTS.y5.math[1][0]='Algebra Lab · Stretch';
+const JOURNALKEY='littlelab-observations-v2';
+function readJournal(){try{return JSON.parse(localStorage.getItem(JOURNALKEY)||'[]')}catch(e){return []}}
+function record(kind,note){try{const a=readJournal();a.push({child:NAMES[S.profile]||'Family',kind,note,date:new Date().toISOString()});localStorage.setItem(JOURNALKEY,JSON.stringify(a.slice(-100)))}catch(e){}}
+function missionBanner(p){return `<div class="labhero"><div class="eyebrow">Today's discovery · no timer, no rush</div><h2>${p==='y5'?'Can you design a car that meets less air resistance?':'Can you build a rocket crew?'}</h2><p>${p==='y5'?'Predict → test two shapes → compare your evidence → explain using “because”.':'Look → count → try → tell a grown-up what you noticed.'}</p><div class="labactions"><button class="btn primary" onclick="go(${p==='y5'?'windTunnel':'rocketBonds'})">Start exploring →</button><button class="btn" onclick="go(parentGuide)">Grown-up guide</button></div></div>`}
+function labShell(cls,title,lead,content){main.innerHTML=`<section class="act ${cls}">${head(cls,'Discovery studio',title)}<p class="lead">${lead}</p>${content}</section>`}
+function windTunnel(){
+ labShell('phys','Wind Tunnel Studio','Does changing a shape change drag? Keep speed and frontal area the same for a fair comparison.',`<div class="panel"><p class="labquiet"><b>Mission:</b> Find a shape with less drag at 20 m/s. First say or write your prediction.</p><label for="prediction">I predict… because…</label><textarea id="prediction" rows="2" placeholder="I predict the rounded shape will…"></textarea><div class="labcontrols"><div><label for="shape">Test shape</label><select id="shape"><option value="box">Box</option><option value="round">Rounded body</option><option value="stream">Streamlined body</option></select></div><div><label for="speed">Air speed: <span id="speedLabel">20 m/s</span></label><input id="speed" type="range" min="5" max="40" step="5" value="20"></div><div><label for="area">Frontal area: <span id="areaLabel">1.0 m²</span></label><input id="area" type="range" min="5" max="20" value="10"></div></div></div><canvas class="labcanvas" id="wind" aria-label="Illustration of air moving around the selected body"></canvas><p class="labnote">Air lines are an illustration, not a fluid simulation. The drag values use D = ½ρv²CᴅA, air density 1.225 kg/m³ and teaching coefficients (box 1.05, rounded 0.47, streamlined 0.15). Real vehicles need measured coefficients.</p><div class="panel"><div class="readouts"><div class="ro"><small>Estimated drag</small><b id="drag"></b></div><div class="ro"><small>Compared with box at same speed & area</small><b id="saving"></b></div></div><div class="labactions"><button class="btn primary" id="capture">Record test</button><button class="btn" id="pause">Pause air</button></div><div class="labtable"><table><thead><tr><th>Shape</th><th>Speed</th><th>Area</th><th>Drag</th></tr></thead><tbody id="tests"></tbody></table></div><label for="conclusion">My evidence shows… because…</label><textarea id="conclusion" rows="2"></textarea><button class="btn" id="saveExperiment">Save my explanation</button><p id="experimentFeedback" role="status"></p><p class="labquiet">Next challenge: double the speed while keeping everything else fixed. Does drag double or quadruple? Check your measurements.</p></div>`);
+ const cv=$('#wind'),ctx=cv.getContext('2d'),coeff={box:1.05,round:.47,stream:.15};let running=true,raf,t=0,rows=[];
+ const model=()=>{const shape=$('#shape').value,v=+$('#speed').value,a=+$('#area').value/10;return {shape,v,a,d:.5*1.225*v*v*coeff[shape]*a}};
+ function update(){const m=model();$('#speedLabel').textContent=m.v+' m/s';$('#areaLabel').textContent=m.a.toFixed(1)+' m²';$('#drag').textContent=m.d.toFixed(1)+' N';$('#saving').textContent=Math.round((1-coeff[m.shape]/1.05)*100)+'% less drag';draw()}
+ function draw(){const w=cv.clientWidth,h=300,dpr=devicePixelRatio||1;if(cv.width!==w*dpr){cv.width=w*dpr;cv.height=h*dpr}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const m=model(),cx=w*.47,rx=Math.min(65,w*.15),ry=22+m.a*15;ctx.fillStyle='#10253e';ctx.fillRect(0,0,w,h);
+ for(let j=0;j<13;j++){const y=20+j*22;ctx.strokeStyle='#62d4df';ctx.lineWidth=1.6;ctx.beginPath();for(let x=0;x<w;x+=3){const bump=Math.exp(-Math.pow((x-cx)/(rx*1.3),2))*(y<150?-1:1)*ry*.8;const py=y+bump;if(x===0)ctx.moveTo(x,py);else ctx.lineTo(x,py)}ctx.stroke();const px=((t*m.v*1.5+j*37)%w);ctx.fillStyle='#f8d36b';ctx.beginPath();ctx.arc(px,y+Math.exp(-Math.pow((px-cx)/(rx*1.3),2))*(y<150?-1:1)*ry*.8,3,0,7);ctx.fill()}
+ ctx.fillStyle='#ffc83d';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();if(m.shape==='box')ctx.rect(cx-rx,150-ry,rx*2,ry*2);else if(m.shape==='round')ctx.ellipse(cx,150,rx,ry,0,0,7);else {ctx.moveTo(cx+rx*1.6,150);ctx.bezierCurveTo(cx,150-ry*1.8,cx-rx,150-ry,cx-rx,150);ctx.bezierCurveTo(cx-rx,150+ry,cx,150+ry*1.8,cx+rx*1.6,150)}ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='16px sans-serif';ctx.fillText('AIR →',18,285)}
+ let last=performance.now();function tick(now){if(running)t+=(Math.min(now-last,50)/1000);last=now;draw();raf=requestAnimationFrame(tick)}
+ ['shape','speed','area'].forEach(id=>$('#'+id).oninput=update);
+ $('#pause').onclick=()=>{running=!running;$('#pause').textContent=running?'Pause air':'Resume air'};
+ $('#capture').onclick=()=>{const m=model();rows.push(m);if(rows.length>8)rows.shift();$('#tests').innerHTML=rows.map(r=>`<tr><td>${r.shape}</td><td>${r.v} m/s</td><td>${r.a.toFixed(1)} m²</td><td>${r.d.toFixed(1)} N</td></tr>`).join('')};
+ $('#saveExperiment').onclick=()=>{const text=$('#conclusion').value.trim();if(rows.length<2||text.length<10){$('#experimentFeedback').textContent='Record two tests, then explain what changed. You can ask a grown-up to type your words.';return}record('Wind tunnel',{prediction:$('#prediction').value,tests:rows,explanation:text});$('#experimentFeedback').textContent='Explanation saved on this browser. Compare your tests with a grown-up: did only one variable change?'};
+ cleanup=()=>cancelAnimationFrame(raf);update();raf=requestAnimationFrame(tick);
+}
+function moonLander(){
+ labShell('space','Moon Lander','You start 40 metres above the Moon. Choose when to use the engine. Touch down at 3 m/s or slower.',`<div class="panel labquiet">Predict: will a longer engine burn always help? Thrust slows your descent but uses fuel. This simplified vertical model uses Moon gravity 1.62 m/s² and constant engine acceleration 4 m/s².</div><canvas id="lander" class="labcanvas" aria-label="Moon lander descent, altitude and engine flame"></canvas><div class="readouts"><div class="ro"><small>Altitude</small><b id="alt"></b></div><div class="ro"><small>Downward speed</small><b id="vel"></b></div><div class="ro"><small>Fuel</small><b id="fuel"></b></div></div><div class="labactions"><button class="btn primary" id="begin">Start descent</button><button class="btn" id="burn" disabled aria-pressed="false">Engine OFF · tap to toggle</button><button class="btn" id="restart">Reset</button></div><p class="labresult" id="landFeedback" role="status">Plan your burn before you start. Fuel gives 10 seconds of thrust.</p><p class="labnote">Space has no air to slow this lander. Try a short early burn, then compare with a later burn. A real spacecraft has many more controls.</p>`);
+ const cv=$('#lander'),ctx=cv.getContext('2d');let y=40,v=0,fuel=10,on=false,active=false,raf,last;
+ function paint(){const w=cv.clientWidth,dpr=devicePixelRatio||1;cv.width=w*dpr;cv.height=300*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#10253e';ctx.fillRect(0,0,w,300);ctx.fillStyle='#c2c9d1';ctx.fillRect(0,270,w,30);const py=250-Math.min(y,60)/60*220;ctx.font='42px sans-serif';ctx.fillText('🛸',w/2-25,py);if(on&&active&&fuel>0){ctx.fillStyle='#ffb444';ctx.beginPath();ctx.moveTo(w/2-12,py+5);ctx.lineTo(w/2,py+34);ctx.lineTo(w/2+12,py+5);ctx.fill()}$('#alt').textContent=y.toFixed(1)+' m';$('#vel').textContent=v.toFixed(1)+' m/s';$('#fuel').textContent=fuel.toFixed(1)+' s'}
+ function frame(now){const dt=Math.min((now-last)/1000,.05);last=now;if(active){const thrust=on&&fuel>0;v+=(1.62-(thrust?4:0))*dt;y-=v*dt;if(thrust)fuel=Math.max(0,fuel-dt);if(y<=0){y=0;active=false;$('#burn').disabled=true;const safe=Math.abs(v)<=3;$('#landFeedback').textContent=(safe?'Soft landing! ':'Hard landing. ')+`Touchdown speed ${Math.abs(v).toFixed(1)} m/s. Reset and test another burn plan.`;record('Moon landing',{speed:Math.abs(v),safe});if(safe)star()}}paint();raf=requestAnimationFrame(frame)}
+ $('#begin').onclick=()=>{active=true;$('#begin').disabled=true;$('#burn').disabled=false;$('#landFeedback').textContent='Watch the speed. Tap the engine to slow your descent.'};$('#burn').onclick=()=>{on=!on;$('#burn').textContent=on?'Engine ON · tap to toggle':'Engine OFF · tap to toggle';$('#burn').setAttribute('aria-pressed',on)};$('#restart').onclick=()=>go(moonLander,false);last=performance.now();raf=requestAnimationFrame(frame);cleanup=()=>cancelAnimationFrame(raf);
+}
+function readingMission(){
+ const passage='Rayan tested two model cars in a wind tunnel. He kept the air speed and frontal area the same. The box-shaped car had more drag than the streamlined car. Drag is a force that resists motion through air. Rayan chose the streamlined design, but he still needed to test how safely it could turn.';
+ labShell('eng','Read like an engineer','Read or listen, find evidence, then explain. Listening helps you explore meaning; try reading a sentence aloud too.',`<div class="panel prose"><div class="eyebrow">Mission 01 · The design decision</div><h2>Which car should Rayan choose?</h2><p id="passage">${passage}</p><button class="btn" id="listen">🔊 Listen to the passage</button><div class="labtiles" style="margin-top:20px"><button class="chip" data-word="drag">drag</button><button class="chip" data-word="streamlined">streamlined</button><button class="chip" data-word="evidence">evidence</button></div><p id="definition" role="status">Tap a word to explore it.</p></div><div class="panel"><h2>Find the evidence</h2><p>Why did Rayan keep speed and frontal area the same?</p><div class="labactions" id="answers"><button class="btn" data-correct="yes">To make a fair comparison</button><button class="btn">To make both cars look the same</button><button class="btn">To remove all drag</button></div><p id="readFeedback" role="status"></p><h3>Think beyond the text</h3><p>Does less drag prove the car is safe? Explain what still needs testing.</p><label for="writing">Use your voice first. Then write or ask a grown-up to type.</label><textarea id="writing" rows="4" placeholder="I would choose… because… The evidence is… I would also test…"></textarea><div class="labactions"><button class="btn primary" id="saveWriting">Save my mission</button></div><p id="writeFeedback" role="status"></p><p class="labnote">Together, check: Did I give a reason? Use evidence? Start sentences with capitals and end them with punctuation? Your explanation needs a human reader; this tool does not grade it.</p></div>`);
+ $('#listen').onclick=()=>say(passage);const defs={drag:'Drag: a force that resists motion through air. Say: “The car has less drag because…”',streamlined:'Streamlined: shaped to move through air or water with less resistance. Can you find a streamlined object?',evidence:'Evidence: observations or measurements that support an idea. Which test result supports the design choice?'};
+ main.querySelectorAll('[data-word]').forEach(b=>b.onclick=()=>{$('#definition').textContent=defs[b.dataset.word];say(defs[b.dataset.word])});let solved=false;
+ $('#answers').onclick=e=>{const b=e.target.closest('button');if(!b)return;const ok=b.dataset.correct==='yes';$('#readFeedback').textContent=ok?'Yes. Keeping other things the same helps isolate the effect of shape. Point to the sentence that tells us what he kept the same.':'Look again at “He kept the air speed and frontal area the same.” Which option explains a fair test?';if(ok&&!solved){solved=true;star()}};
+ let old;try{old=localStorage.getItem('littlelab-reading-draft')||''}catch(e){}$('#writing').value=old||'';
+ $('#saveWriting').onclick=()=>{const t=$('#writing').value.trim();if(!t){$('#writeFeedback').textContent='Tell your idea first, then write a sentence together.';return}try{localStorage.setItem('littlelab-reading-draft',t)}catch(e){}record('Reading explanation',t);$('#writeFeedback').textContent='Saved on this browser. Read it together and choose one thing to improve.'};
+}
+function rocketBonds(){
+ let total=5,n=R(1,4),solved=false;
+ labShell('math','Rocket Crew','Help the astronauts fill their rocket. How many more do we need?',`<div class="panel"><div class="labactions"><button class="chip" id="five" aria-pressed="true">Crew of 5</button><button class="chip" id="ten" aria-pressed="false">Crew of 10 · challenge</button><button class="btn" id="hear">🔊 Hear</button></div><h2 id="bondPrompt" style="margin-top:20px"></h2><div id="frame" class="labframe"></div><div class="labtiles" id="numbers"></div><p id="bondFeedback" class="labresult" role="status"></p><button class="btn primary" id="nextCrew">New crew</button></div><p class="labnote">Grown-up: ask “How do you know?” Let Zoe point to the empty spaces or use real counters. Start with five; try ten when she is comfortable.</p>`);
+ function prompt(){return `${n} astronauts are here. We need ${total} altogether. How many more?`}
+ function render(){solved=false;$('#bondPrompt').textContent=prompt();$('#frame').innerHTML=Array.from({length:total},(_,i)=>`<div class="labcell ${i<n?'filled':''}" aria-label="${i<n?'astronaut':'empty seat'}">${i<n?'👩‍🚀':''}</div>`).join('');$('#numbers').innerHTML=Array.from({length:total+1},(_,i)=>`<button class="btn" data-number="${i}">${i}</button>`).join('');$('#bondFeedback').textContent='Point to each empty seat. You can count them.';$('#five').setAttribute('aria-pressed',total===5);$('#ten').setAttribute('aria-pressed',total===10)}
+ $('#numbers').onclick=e=>{const b=e.target.closest('button');if(!b||solved)return;const answer=+b.dataset.number;if(answer===total-n){solved=true;star();const msg=`Yes! ${n} and ${answer} make ${total}.`;$('#bondFeedback').textContent=msg;say(msg);$('#frame').querySelectorAll('.labcell:not(.filled)').forEach(c=>{c.textContent='👨‍🚀';c.style.background='#bde7ef'});record('Number bonds',{total,n})}else{$('#bondFeedback').textContent='Try counting the empty seats. Each seat needs one astronaut.';say('Count the empty seats. Try again.')}};
+ $('#hear').onclick=()=>say(prompt());$('#nextCrew').onclick=()=>{n=R(1,total-1);render();say(prompt())};$('#five').onclick=()=>{total=5;n=R(1,4);render()};$('#ten').onclick=()=>{total=10;n=R(1,9);render()};render();
+}
+function bodyExplorer(){
+ const parts={brain:['Brain','Your brain helps you think, remember and control your body.','Point to your head. Can you remember two things you did today?'],lungs:['Lungs','Your lungs take in oxygen from the air. Your body needs oxygen.','Rest one hand gently on your chest. What moves when you breathe normally?'],heart:['Heart','Your heart pumps blood around your body. Blood carries oxygen.','With a grown-up, feel your heartbeat. Is it steady while you sit quietly?'],stomach:['Stomach','Your stomach mixes food. It is one part of the journey that helps your body use food.','Tell a grown-up what you ate today. What happens before food reaches your stomach?']};
+ labShell('phys','Inside Me','Meet the amazing parts of your body. Everyone can be a curious body scientist.',`<div class="panel labpair"><svg viewBox="0 0 240 330" class="labbody" role="img" aria-label="Simplified body showing brain in the head, lungs and heart in the chest, stomach below"><circle cx="120" cy="47" r="35" fill="#f6d2ae" stroke="#1d2a44" stroke-width="3"/><path d="M90 90 L150 90 L175 200 L145 210 L145 310 L122 310 L120 215 L116 310 L93 310 L93 210 L65 200Z" fill="#dceaf8" stroke="#1d2a44" stroke-width="3"/><ellipse cx="120" cy="40" rx="23" ry="16" fill="#bba3e3"/><ellipse cx="101" cy="130" rx="17" ry="30" fill="#8ccdd7"/><ellipse cx="139" cy="130" rx="17" ry="30" fill="#8ccdd7"/><path d="M120 128 C105 111 101 140 120 150 C142 132 130 113 120 128" fill="#eb6974"/><ellipse cx="131" cy="180" rx="22" ry="17" fill="#f5b55b"/></svg><div><h2>Choose a body part</h2><div class="labactions">${Object.entries(parts).map(([k,v])=>`<button class="btn" data-part="${k}">${v[0]}</button>`).join('')}</div><h3 id="organ" style="margin-top:24px">What are you curious about?</h3><p id="organInfo">Tap a word, then listen together.</p><p id="organTry" class="labquiet">Pictures show where the parts are. They are simplified and not to scale.</p><button class="btn" id="organHear">🔊 Hear again</button></div></div><div class="panel"><h2>Body detective</h2><p>Which part pumps blood around your body?</p><div class="labactions" id="bodyChoices"><button class="btn" data-body="lungs">Lungs</button><button class="btn" data-body="heart">Heart</button><button class="btn" data-body="stomach">Stomach</button></div><p id="bodyFeedback" role="status"></p></div>`);
+ let current=null,solved=false;main.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{current=parts[b.dataset.part];$('#organ').textContent=current[0];$('#organInfo').textContent=current[1];$('#organTry').textContent=current[2];say(current[0]+'. '+current[1])});$('#organHear').onclick=()=>say(current?current[1]+' '+current[2]:'Choose a body part.');$('#bodyChoices').onclick=e=>{const b=e.target.closest('button');if(!b)return;const ok=b.dataset.body==='heart';const msg=ok?'Yes! Your heart is a pump. Can you tell a grown-up where it is?':'Explore the heart, then try again.';$('#bodyFeedback').textContent=msg;say(msg);if(ok&&!solved){solved=true;star();record('Body explorer','Identified the heart as a pump')}};
+}
+function parentGuide(){
+ labShell('eng','For Abu · Learning together','A starting plan based on what you told me. Year 5 and FS2 are treated as British curriculum stages; adjust to their school and current learning.',`<div class="panel prose"><h2>Build understanding, then stretch</h2><p>Rayan enjoys maths, cars, aerodynamics and space. Use those interests to practise reading and explaining. Zoe enjoys maths, space and the idea of being a doctor: use pictures, stories, counting and conversation. These are invitations to explore, not career tracks.</p><h3>Rayan · a suggested 15–20 minute session</h3><p>Read a short mission together. Discuss two new words. Run two fair tests. Explain the result aloud, then write two or three sentences using “because” and a measurement. Finish by asking a new question. Rotate with the original maths and writing activities.</p><p>“Slow in English” can mean different things: decoding, fluency, vocabulary, comprehension or writing. Listen to him read a familiar short passage and ask him to retell it. Ask his teacher which skill needs support before choosing harder texts or a phonics intervention. This site does not diagnose reading difficulties.</p><h3>Zoe · a suggested 5–10 minute session</h3><p>Play with five first. Ask “How did you see it?” or “What could we try?” Mix the screen activity with real counters, drawing, movement and a story read by an adult. Use the speaker when useful. Keep phonics practice consistent with her school's sound sequence.</p><h3>Watch for transfer</h3><p>Can they explain an idea the next day without the screen? Can Rayan use “evidence” in a new sentence? Can Zoe make five with real objects? If it is easy, change the problem; if it is frustrating, add a picture or work together. Stars show participation and answers, not mastery. The suggested session lengths are design choices, not research prescriptions.</p><h3>Optional stretch</h3><p>The original algebra and trigonometry remain available. Treat them as optional explorations. Strong maths performance alone does not establish readiness for every advanced topic.</p><h3>Research behind this version</h3><ul><li><a href="https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/literacy-kS2" target="_blank" rel="noopener">EEF: Improving Literacy in Key Stage 2</a> — vocabulary, dialogue, fluency, comprehension and writing.</li><li><a href="https://www.gov.uk/government/publications/development-matters--2/development-matters" target="_blank" rel="noopener">Development Matters</a> — early number relationships, play and adult interaction.</li><li><a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: Drag equation</a> — the relationship used in the wind tunnel calculator.</li></ul><p class="labnote">Sources reviewed as guidance pages on 13 October 2026. These support the design choices; this particular website has not been evaluated with children.</p><h3>Privacy and saved work</h3><p>Notes and stars stay in this browser's local storage and do not sync between devices. Anyone using this browser profile may see them. External font requests and source links use the internet. There is no chat service or automatic grading.</p><div class="labactions"><button class="btn" id="exportNotes">Download learning notes</button><button class="btn" id="clearNotes">Clear new learning notes</button></div><p id="notesStatus" role="status"></p></div>`);
+ $('#exportNotes').onclick=()=>{const blob=new Blob([JSON.stringify(readJournal(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='little-lab-learning-notes.json';a.click();later(()=>URL.revokeObjectURL(url),1000);$('#notesStatus').textContent='Learning notes downloaded.'};$('#clearNotes').onclick=()=>{if(confirm('Clear saved experiment notes and the reading draft on this browser? Stars will stay.')){try{localStorage.removeItem(JOURNALKEY);localStorage.removeItem('littlelab-reading-draft')}catch(e){}$('#notesStatus').textContent='Learning notes cleared.'}};
+}
 loadWeek();go(home);
+
 </script>
+</body></html>
